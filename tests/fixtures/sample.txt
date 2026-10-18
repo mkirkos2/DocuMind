@@ -1,0 +1,5 @@
+This is a sample document for testing the DocuMind application. It contains various types of information that would be typical in a document processing system.
+
+The system should be able to extract this text and split it into appropriate chunks for further processing. Each chunk should maintain some context with overlapping content to ensure continuity when retrieving information.
+
+This is the end of the sample document.
