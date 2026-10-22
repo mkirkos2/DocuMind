@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Services\OllamaService;
+use App\Services\GeminiService;
 use App\Services\DocumentSearchService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
@@ -31,13 +31,13 @@ class QuestionAnsweringTest extends TestCase
 
     public function test_question_answering_endpoint_requires_authentication()
     {
-        // Mock the services to bypass Bedrock configuration issues
+        // Mock the services to bypass Gemini configuration issues
         $documentSearchService = Mockery::mock(DocumentSearchService::class);
-        $bedrockService = Mockery::mock(OllamaService::class);
+        $geminiService = Mockery::mock(GeminiService::class);
 
         // Bind mocks to container
         $this->app->instance(DocumentSearchService::class, $documentSearchService);
-        $this->app->instance(OllamaService::class, $bedrockService);
+        $this->app->instance(GeminiService::class, $geminiService);
 
         // Act
         $response = $this->postJson(route('question.answer'), [
@@ -53,13 +53,13 @@ class QuestionAnsweringTest extends TestCase
         // Arrange
         $this->actingAs($this->user);
 
-        // Mock the services to bypass Bedrock configuration issues
+        // Mock the services to bypass Gemini configuration issues
         $documentSearchService = Mockery::mock(DocumentSearchService::class);
-        $bedrockService = Mockery::mock(OllamaService::class);
+        $geminiService = Mockery::mock(GeminiService::class);
 
         // Bind mocks to container
         $this->app->instance(DocumentSearchService::class, $documentSearchService);
-        $this->app->instance(OllamaService::class, $bedrockService);
+        $this->app->instance(GeminiService::class, $geminiService);
 
         // Act
         $response = $this->postJson(route('question.answer'), [
@@ -79,13 +79,13 @@ class QuestionAnsweringTest extends TestCase
         // Arrange
         $this->actingAs($this->user);
 
-        // Mock the services to bypass Bedrock configuration issues
+        // Mock the services to bypass Gemini configuration issues
         $documentSearchService = Mockery::mock(DocumentSearchService::class);
-        $bedrockService = Mockery::mock(OllamaService::class);
+        $geminiService = Mockery::mock(GeminiService::class);
 
         // Bind mocks to container
         $this->app->instance(DocumentSearchService::class, $documentSearchService);
-        $this->app->instance(OllamaService::class, $bedrockService);
+        $this->app->instance(GeminiService::class, $geminiService);
 
         $longQuestion = str_repeat('a', 2001); // Exceeds max length of 2000
 
@@ -109,7 +109,7 @@ class QuestionAnsweringTest extends TestCase
 
         // Mock the services
         $documentSearchService = Mockery::mock(DocumentSearchService::class);
-        $bedrockService = Mockery::mock(OllamaService::class);
+        $geminiService = Mockery::mock(GeminiService::class);
 
         // Create actual document and chunk for foreign key constraints
         $document = \App\Models\Document::factory()->create([
@@ -137,12 +137,12 @@ class QuestionAnsweringTest extends TestCase
                 ]
             ]);
 
-        $bedrockService->shouldReceive('generateText')
+        $geminiService->shouldReceive('generateText')
             ->andReturn('Laravel is a PHP web application framework.');
 
         // Bind mocks to container
         $this->app->instance(DocumentSearchService::class, $documentSearchService);
-        $this->app->instance(OllamaService::class, $bedrockService);
+        $this->app->instance(GeminiService::class, $geminiService);
 
         // Act
         $response = $this->postJson(route('question.answer'), [

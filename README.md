@@ -16,7 +16,7 @@ DocuMind is a document-based AI assistant that allows users to upload documents 
 - **Frontend:** Vue 3, TypeScript, Inertia.js
 - **Styling:** Tailwind CSS
 - **Database:** SQLite
-- **AI:** Ollama with a locally running language model
+- **AI:** Google Gemini API
 - **Testing:** PHPUnit
 
 ## Requirements
@@ -24,7 +24,7 @@ DocuMind is a document-based AI assistant that allows users to upload documents 
 - PHP and Composer
 - Node.js and npm
 - SQLite
-- Ollama with the required model installed
+- Google Gemini API key (free tier available)
 
 ## Installation
 
@@ -68,7 +68,14 @@ DocuMind is a document-based AI assistant that allows users to upload documents 
    npm run build
    ```
 
-7. Configure Ollama and the required language model according to your local setup.
+7. Obtain a Google Gemini API key:
+   - Visit [Google AI Studio](https://aistudio.google.com/) 
+   - Create a free account or sign in
+   - Generate an API key
+   - Set `GEMINI_API_KEY` in your `.env` file
+   - Optionally set `GEMINI_MODEL` to specify a different model (default: gemini-3-flash-preview)
+   
+   The application is configured to use models within Google's free tier by default. Be aware that free tier quotas and model availability can change, and you should monitor your usage to stay within limits.
 
 8. Start the Laravel development server:
 

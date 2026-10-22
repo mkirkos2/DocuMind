@@ -23,11 +23,9 @@ interface Props {
             label: string;
             active: boolean;
         }>;
-        meta: {
-            from: number;
-            to: number;
-            total: number;
-        };
+        from: number | null;
+        to: number | null;
+        total: number;
     };
 }
 
@@ -137,74 +135,82 @@ const getStatusClass = (status: string) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-slate-900">
-                Documents
-            </h2>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-primary-600">DOCUMENT LIBRARY</p>
+                <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+                    Documents
+                </h2>
+                <p class="mt-1 text-sm text-slate-600">
+                    Upload, manage, and search your documents in one place.
+                </p>
+            </div>
         </template>
 
         <div class="py-8">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-xl">
-                    <div class="p-6">
-                        <!-- Upload Form -->
-                        <div class="mb-8 rounded-xl border border-slate-200 bg-slate-50 p-6">
-                            <h3 class="text-lg font-medium text-slate-900">Upload Document</h3>
+            <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+                <!-- Upload Form -->
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div class="p-6 sm:p-8">
+                        <h3 class="text-lg font-semibold text-slate-900">Upload Document</h3>
 
-                            <form @submit.prevent="submit" class="mt-4">
-                                <div class="flex flex-col gap-4 md:flex-row">
-                                    <div class="flex-1">
-                                        <input
-                                            type="file"
-                                            @input="handleFileInput"
-                                            accept=".pdf,.txt"
-                                            class="block w-full cursor-pointer rounded-lg border border-slate-300 bg-white text-sm text-slate-900 file:mr-4 file:rounded-md file:border-0 file:bg-slate-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-100 focus:outline-none"
-                                            :disabled="isUploading"
-                                        />
-                                        <p class="mt-2 text-sm text-slate-600">
-                                            PDF and TXT files only. Max 10 MB.
-                                        </p>
+                        <form @submit.prevent="submit" class="mt-6">
+                            <div class="flex flex-col gap-4 md:flex-row md:items-end">
+                                <div class="flex-1">
+                                    <input
+                                        type="file"
+                                        @input="handleFileInput"
+                                        accept=".pdf,.txt"
+                                        class="block w-full cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 file:mr-4 file:rounded-md file:border-0 file:bg-slate-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                        :disabled="isUploading"
+                                    />
+                                    <p class="mt-2 text-sm text-slate-600">
+                                        PDF and TXT files only. Max 10 MB.
+                                    </p>
 
-                                        <div v-if="uploadForm.errors.file" class="mt-2 text-sm text-red-600">
-                                            {{ uploadForm.errors.file }}
-                                        </div>
-                                    </div>
-
-                                    <div class="md:w-32">
-                                        <button
-                                            type="submit"
-                                            class="w-full rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:cursor-not-allowed disabled:opacity-75"
-                                            :disabled="isUploading || !uploadForm.file"
-                                        >
-                                            <span v-if="!isUploading">Upload</span>
-                                            <span v-else>Uploading...</span>
-                                        </button>
+                                    <div v-if="uploadForm.errors.file" class="mt-2 text-sm text-red-600">
+                                        {{ uploadForm.errors.file }}
                                     </div>
                                 </div>
 
-                                <!-- Progress bar -->
-                                <div v-if="isUploading" class="mt-5">
-                                    <div class="flex items-center justify-between text-sm text-slate-600">
-                                        <span>Processing...</span>
-                                        <span>{{ uploadProgress }}%</span>
-                                    </div>
-                                    <div class="mt-2 h-2 w-full rounded-full bg-slate-200">
-                                        <div
-                                            class="h-2 rounded-full bg-primary-600 transition-all duration-300"
-                                            :style="{ width: uploadProgress + '%' }"
-                                        ></div>
-                                    </div>
+                                <div class="md:w-32">
+                                    <button
+                                        type="submit"
+                                        class="w-full rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:cursor-not-allowed disabled:opacity-75"
+                                        :disabled="isUploading || !uploadForm.file"
+                                    >
+                                        <span v-if="!isUploading">Upload</span>
+                                        <span v-else>Uploading...</span>
+                                    </button>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
 
-                        <!-- Documents List -->
+                            <!-- Progress bar -->
+                            <div v-if="isUploading" class="mt-6">
+                                <div class="flex items-center justify-between text-sm text-slate-600">
+                                    <span>Processing...</span>
+                                    <span>{{ uploadProgress }}%</span>
+                                </div>
+                                <div class="mt-2 h-2 w-full rounded-full bg-slate-200">
+                                    <div
+                                        class="h-2 rounded-full bg-primary-600 transition-all duration-300"
+                                        :style="{ width: uploadProgress + '%' }"
+                                    ></div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Documents List -->
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div class="p-6 sm:p-8">
                         <div v-if="props.documents.data.length > 0">
-                            <h3 class="text-lg font-medium text-slate-900">Your Documents</h3>
+                            <h3 class="text-lg font-semibold text-slate-900">Your Documents</h3>
 
-                            <div class="mt-4 overflow-hidden rounded-lg border border-slate-200">
+                            <div class="mt-6 overflow-hidden">
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-slate-200">
-                                        <thead class="bg-slate-50">
+                                        <thead>
                                             <tr>
                                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
                                                     Document
@@ -250,13 +256,13 @@ const getStatusClass = (status: string) => {
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <Link
                                                         :href="route('documents.show', document.id)"
-                                                        class="text-primary-600 hover:text-primary-900 mr-3"
+                                                        class="text-primary-600 hover:text-primary-700 mr-4"
                                                     >
                                                         View
                                                     </Link>
                                                     <button
                                                         @click="confirmDeletion(document)"
-                                                        class="text-rose-600 hover:text-rose-900"
+                                                        class="text-rose-600 hover:text-rose-700"
                                                     >
                                                         Delete
                                                     </button>
@@ -269,36 +275,36 @@ const getStatusClass = (status: string) => {
 
                             <!-- Pagination -->
                             <div class="mt-6 flex items-center justify-between">
-                                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div class="flex-1 flex items-center justify-between">
                                     <div>
                                         <p class="text-sm text-slate-700">
                                             Showing
-                                            <span class="font-medium">{{ props.documents?.meta?.from ?? 0 }}</span>
+                                            <span class="font-medium">{{ props.documents.from ?? 0 }}</span>
                                             to
-                                            <span class="font-medium">{{ props.documents?.meta?.to ?? 0 }}</span>
+                                            <span class="font-medium">{{ props.documents.to ?? 0 }}</span>
                                             of
-                                            <span class="font-medium">{{ props.documents?.meta?.total ?? 0 }}</span>
+                                            <span class="font-medium">{{ props.documents.total }}</span>
                                             results
                                         </p>
                                     </div>
                                     <div>
-                                        <nav class="relative z-0 inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                        <nav class="relative z-0 inline-flex -space-x-px rounded-lg shadow-sm" aria-label="Pagination">
                                             <template v-for="(link, index) in props.documents.links" :key="index">
                                                 <span
                                                     v-if="link.url === null"
-                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-500 bg-white border border-slate-300 cursor-not-allowed"
+                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-500 bg-white border border-slate-300 cursor-not-allowed rounded-lg"
                                                     v-html="link.label"
                                                 ></span>
                                                 <a
                                                     v-else-if="link.active"
                                                     :href="link.url || '#'"
-                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100"
+                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 rounded-lg"
                                                     v-html="link.label"
                                                 ></a>
                                                 <a
                                                     v-else
                                                     :href="link.url || '#'"
-                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50"
+                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg"
                                                     v-html="link.label"
                                                 ></a>
                                             </template>
@@ -335,7 +341,7 @@ const getStatusClass = (status: string) => {
                 <div class="mt-6 flex justify-end gap-3">
                     <button
                         type="button"
-                        class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50"
+                        class="rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50"
                         @click="confirmingDeletion = false"
                     >
                         Cancel
@@ -343,7 +349,7 @@ const getStatusClass = (status: string) => {
                     
                     <button
                         type="button"
-                        class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
+                        class="rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-rose-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
                         :class="{ 'opacity-75 cursor-not-allowed': deletionForm.processing }"
                         :disabled="deletionForm.processing"
                         @click="deleteDocument"

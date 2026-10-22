@@ -16,32 +16,40 @@ defineProps<{
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-slate-900">
-                Profile
-            </h2>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-primary-600">ACCOUNT SETTINGS</p>
+                <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+                    Profile
+                </h2>
+                <p class="mt-1 text-sm text-slate-600">
+                    Manage your account settings and preferences
+                </p>
+            </div>
         </template>
 
         <div class="py-8">
-            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-xl">
-                    <div class="p-6">
+            <div class="mx-auto max-w-3xl space-y-6 px-4 sm:px-6 lg:px-8">
+                <!-- Profile Information Card -->
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div class="p-6 sm:p-8">
                         <UpdateProfileInformationForm
                             :must-verify-email="mustVerifyEmail"
                             :status="status"
-                            class="max-w-xl"
                         />
                     </div>
                 </div>
 
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-xl">
-                    <div class="p-6">
-                        <UpdatePasswordForm class="max-w-xl" />
+                <!-- Update Password Card -->
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div class="p-6 sm:p-8">
+                        <UpdatePasswordForm />
                     </div>
                 </div>
 
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-xl">
-                    <div class="p-6">
-                        <DeleteUserForm class="max-w-xl" />
+                <!-- Delete Account Card -->
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div class="p-6 sm:p-8">
+                        <DeleteUserForm />
                     </div>
                 </div>
             </div>

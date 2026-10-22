@@ -85,74 +85,79 @@ const deleteDocument = () => {
     <AuthenticatedLayout>
         <template #header>
             <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-primary-600">DOCUMENT DETAILS</p>
+                <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+                    {{ props.document.title }}
+                </h2>
+                <p class="mt-1 text-sm text-slate-600">
+                    View and manage this document
+                </p>
+                
                 <Link
                     :href="route('documents.index')"
-                    class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700"
+                    class="mt-4 inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700"
                 >
                     <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
                     Back to Documents
                 </Link>
-                <h2 class="mt-2 text-2xl font-bold leading-tight text-slate-900">
-                    {{ props.document.title }}
-                </h2>
             </div>
         </template>
 
-        <div class="py-8">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="overflow-hidden bg-white shadow-sm sm:rounded-xl">
-                    <div class="p-6">
+        <div class="bg-background-light py-8">
+            <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
                         <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
                             <!-- Document Information -->
                             <div class="md:col-span-2">
-                                <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                                    <h3 class="text-lg font-semibold text-slate-900">Document Information</h3>
-                                    
-                                    <dl class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                        <div class="rounded-lg bg-slate-50 p-4">
-                                            <dt class="text-sm font-medium text-slate-600">Title</dt>
-                                            <dd class="mt-1 text-sm font-medium text-slate-900">{{ props.document.title }}</dd>
-                                        </div>
+                                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                                    <div class="p-6 sm:p-8">
+                                        <h3 class="text-lg font-semibold text-slate-900">Document Information</h3>
                                         
-                                        <div class="rounded-lg bg-slate-50 p-4">
-                                            <dt class="text-sm font-medium text-slate-600">Original Filename</dt>
-                                            <dd class="mt-1 text-sm font-medium text-slate-900">{{ props.document.original_filename }}</dd>
-                                        </div>
-                                        
-                                        <div class="rounded-lg bg-slate-50 p-4">
-                                            <dt class="text-sm font-medium text-slate-600">File Size</dt>
-                                            <dd class="mt-1 text-sm font-medium text-slate-900">{{ formatFileSize(props.document.file_size) }}</dd>
-                                        </div>
-                                        
-                                        <div class="rounded-lg bg-slate-50 p-4">
-                                            <dt class="text-sm font-medium text-slate-600">Type</dt>
-                                            <dd class="mt-1 text-sm font-medium text-slate-900">{{ props.document.mime_type }}</dd>
-                                        </div>
-                                        
-                                        <div class="rounded-lg bg-slate-50 p-4">
-                                            <dt class="text-sm font-medium text-slate-600">Chunks Processed</dt>
-                                            <dd class="mt-1 text-sm font-medium text-slate-900">{{ props.document.chunk_count }}</dd>
-                                        </div>
-                                        
-                                        <div class="rounded-lg bg-slate-50 p-4">
-                                            <dt class="text-sm font-medium text-slate-600">Uploaded</dt>
-                                            <dd class="mt-1 text-sm font-medium text-slate-900">{{ formatDate(props.document.created_at) }}</dd>
-                                        </div>
-                                        
-                                        <div class="rounded-lg bg-slate-50 p-4 sm:col-span-2">
-                                            <dt class="text-sm font-medium text-slate-600">Status</dt>
-                                            <dd class="mt-1">
-                                                <span
-                                                    class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
-                                                    :class="getStatusClass(props.document.processing_status)"
-                                                >
-                                                    {{ props.document.processing_status.charAt(0).toUpperCase() + props.document.processing_status.slice(1) }}
-                                                </span>
-                                            </dd>
-                                        </div>
-                                    </dl>
+                                        <dl class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                            <div class="rounded-lg bg-slate-50 p-4">
+                                                <dt class="text-sm font-medium text-slate-600">Title</dt>
+                                                <dd class="mt-1 text-sm font-medium text-slate-900">{{ props.document.title }}</dd>
+                                            </div>
+                                            
+                                            <div class="rounded-lg bg-slate-50 p-4">
+                                                <dt class="text-sm font-medium text-slate-600">Original Filename</dt>
+                                                <dd class="mt-1 text-sm font-medium text-slate-900">{{ props.document.original_filename }}</dd>
+                                            </div>
+                                            
+                                            <div class="rounded-lg bg-slate-50 p-4">
+                                                <dt class="text-sm font-medium text-slate-600">File Size</dt>
+                                                <dd class="mt-1 text-sm font-medium text-slate-900">{{ formatFileSize(props.document.file_size) }}</dd>
+                                            </div>
+                                            
+                                            <div class="rounded-lg bg-slate-50 p-4">
+                                                <dt class="text-sm font-medium text-slate-600">Type</dt>
+                                                <dd class="mt-1 text-sm font-medium text-slate-900">{{ props.document.mime_type }}</dd>
+                                            </div>
+                                            
+                                            <div class="rounded-lg bg-slate-50 p-4">
+                                                <dt class="text-sm font-medium text-slate-600">Chunks Processed</dt>
+                                                <dd class="mt-1 text-sm font-medium text-slate-900">{{ props.document.chunk_count }}</dd>
+                                            </div>
+                                            
+                                            <div class="rounded-lg bg-slate-50 p-4">
+                                                <dt class="text-sm font-medium text-slate-600">Uploaded</dt>
+                                                <dd class="mt-1 text-sm font-medium text-slate-900">{{ formatDate(props.document.created_at) }}</dd>
+                                            </div>
+                                            
+                                            <div class="rounded-lg bg-slate-50 p-4 sm:col-span-2">
+                                                <dt class="text-sm font-medium text-slate-600">Status</dt>
+                                                <dd class="mt-1">
+                                                    <span
+                                                        class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
+                                                        :class="getStatusClass(props.document.processing_status)"
+                                                    >
+                                                        {{ props.document.processing_status.charAt(0).toUpperCase() + props.document.processing_status.slice(1) }}
+                                                    </span>
+                                                </dd>
+                                            </div>
+                                        </dl>
+                                    </div>
                                 </div>
                             </div>
 
@@ -160,95 +165,99 @@ const deleteDocument = () => {
                             <div>
                                 <div class="space-y-6">
                                     <!-- Processing Status Card -->
-                                    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                                        <h3 class="text-lg font-semibold text-slate-900">Processing Status</h3>
-                                        
-                                        <div class="mt-5">
-                                            <div class="flex items-start">
-                                                <div class="mr-3 flex-shrink-0">
-                                                    <div v-if="props.document.processing_status === 'completed'" class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
-                                                        <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                        </svg>
+                                    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                                        <div class="p-6 sm:p-8">
+                                            <h3 class="text-lg font-semibold text-slate-900">Processing Status</h3>
+                                            
+                                            <div class="mt-5">
+                                                <div class="flex items-start">
+                                                    <div class="mr-3 flex-shrink-0">
+                                                        <div v-if="props.document.processing_status === 'completed'" class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
+                                                            <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <div v-else-if="props.document.processing_status === 'failed'" class="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100">
+                                                            <svg class="h-5 w-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100">
+                                                            <svg class="h-5 w-5 text-amber-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                            </svg>
+                                                        </div>
                                                     </div>
-                                                    <div v-else-if="props.document.processing_status === 'failed'" class="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100">
-                                                        <svg class="h-5 w-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                        </svg>
+                                                    <div>
+                                                        <p class="text-sm font-medium text-slate-900 capitalize">
+                                                            {{ props.document.processing_status }}
+                                                        </p>
+                                                        <p v-if="props.document.processing_status === 'pending'" class="mt-1 text-xs text-slate-600">
+                                                            Waiting to be processed
+                                                        </p>
+                                                        <p v-else-if="props.document.processing_status === 'processing'" class="mt-1 text-xs text-slate-600">
+                                                            Processing document content
+                                                        </p>
+                                                        <p v-else-if="props.document.processing_status === 'completed'" class="mt-1 text-xs text-slate-600">
+                                                            Ready for querying
+                                                        </p>
+                                                        <p v-else-if="props.document.processing_status === 'failed'" class="mt-1 text-xs text-slate-600">
+                                                            Processing failed
+                                                        </p>
                                                     </div>
-                                                    <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100">
-                                                        <svg class="h-5 w-5 text-amber-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <p class="text-sm font-medium text-slate-900 capitalize">
-                                                        {{ props.document.processing_status }}
-                                                    </p>
-                                                    <p v-if="props.document.processing_status === 'pending'" class="mt-1 text-xs text-slate-600">
-                                                        Waiting to be processed
-                                                    </p>
-                                                    <p v-else-if="props.document.processing_status === 'processing'" class="mt-1 text-xs text-slate-600">
-                                                        Processing document content
-                                                    </p>
-                                                    <p v-else-if="props.document.processing_status === 'completed'" class="mt-1 text-xs text-slate-600">
-                                                        Ready for querying
-                                                    </p>
-                                                    <p v-else-if="props.document.processing_status === 'failed'" class="mt-1 text-xs text-slate-600">
-                                                        Processing failed
-                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- View PDF Card -->
-                                    <div v-if="props.document.mime_type === 'application/pdf'" class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                                        <h3 class="text-lg font-semibold text-slate-900">View Document</h3>
-                                        
-                                        <div class="mt-5">
-                                            <p class="text-sm text-slate-600">
-                                                Open the original PDF file in your browser.
-                                            </p>
+                                    <div v-if="props.document.mime_type === 'application/pdf'" class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                                        <div class="p-6 sm:p-8">
+                                            <h3 class="text-lg font-semibold text-slate-900">View Document</h3>
                                             
-                                            <a
-                                                :href="route('documents.view-file', props.document.id)"
-                                                target="_blank"
-                                                class="mt-4 inline-flex items-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
-                                            >
-                                                Open PDF
-                                                <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                                </svg>
-                                            </a>
+                                            <div class="mt-5">
+                                                <p class="text-sm text-slate-600">
+                                                    Open the original PDF file in your browser.
+                                                </p>
+                                                
+                                                <a
+                                                    :href="route('documents.view-file', props.document.id)"
+                                                    target="_blank"
+                                                    class="mt-4 inline-flex items-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                                                >
+                                                    Open PDF
+                                                    <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                    </svg>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <!-- Delete Document Card -->
-                                    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                                        <h3 class="text-lg font-semibold text-slate-900">Danger Zone</h3>
-                                        
-                                        <div class="mt-5">
-                                            <p class="text-sm text-slate-600">
-                                                Permanently remove this document and all associated data.
-                                            </p>
+                                    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                                        <div class="p-6 sm:p-8">
+                                            <h3 class="text-lg font-semibold text-slate-900">Danger Zone</h3>
                                             
-                                            <button
-                                                type="button"
-                                                class="mt-4 inline-flex items-center rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
-                                                @click="confirmDeletion"
-                                            >
-                                                Delete Document
-                                            </button>
+                                            <div class="mt-5">
+                                                <p class="text-sm text-slate-600">
+                                                    Permanently remove this document and all associated data.
+                                                </p>
+                                                
+                                                <button
+                                                    type="button"
+                                                    class="mt-4 inline-flex items-center rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
+                                                    @click="confirmDeletion"
+                                                >
+                                                    Delete Document
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
+        </div>
         </div>
 
         <!-- Delete Confirmation Modal -->

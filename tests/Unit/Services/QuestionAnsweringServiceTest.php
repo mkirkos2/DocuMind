@@ -5,7 +5,7 @@ namespace Tests\Unit\Services;
 use App\Models\Conversation;
 use App\Models\Document;
 use App\Models\User;
-use App\Services\OllamaService;
+use App\Services\GeminiService;
 use App\Services\DocumentSearchService;
 use App\Services\QuestionAnsweringService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,7 +18,7 @@ class QuestionAnsweringServiceTest extends TestCase
 
     protected User $user;
     protected DocumentSearchService $documentSearchService;
-    protected OllamaService $bedrockServiceMock;
+    protected GeminiService $geminiServiceMock;
     protected QuestionAnsweringService $questionAnsweringService;
 
     protected function setUp(): void
@@ -31,11 +31,11 @@ class QuestionAnsweringServiceTest extends TestCase
 
         // Create mocks
         $this->documentSearchService = Mockery::mock(DocumentSearchService::class);
-        $this->bedrockServiceMock = Mockery::mock(OllamaService::class);
+        $this->geminiServiceMock = Mockery::mock(GeminiService::class);
 
         // Create the service
         $this->questionAnsweringService = new QuestionAnsweringService(
-            $this->bedrockServiceMock,
+            $this->geminiServiceMock,
             $this->documentSearchService
         );
     }
@@ -78,7 +78,7 @@ class QuestionAnsweringServiceTest extends TestCase
             ->with($question, 5)
             ->andReturn($chunks);
 
-        $this->bedrockServiceMock->shouldReceive('generateText')
+        $this->geminiServiceMock->shouldReceive('generateText')
             ->andReturn('Laravel is a PHP web application framework.');
 
         // Act
@@ -131,7 +131,7 @@ class QuestionAnsweringServiceTest extends TestCase
         $this->assertEmpty($result['sources']);
     }
 
-    public function test_answer_question_with_bedrock_service_failure()
+    public function test_answer_question_with_gemini_service_failure()
     {
         // Arrange
         $question = "What is Laravel?";
@@ -163,12 +163,12 @@ class QuestionAnsweringServiceTest extends TestCase
             ->with($question, 5)
             ->andReturn($chunks);
 
-        $this->bedrockServiceMock->shouldReceive('generateText')
-            ->andThrow(new \RuntimeException('Bedrock service error'));
+        $this->geminiServiceMock->shouldReceive('generateText')
+            ->andThrow(new \RuntimeException('Gemini service error'));
 
         // Act & Assert
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Failed to generate answer: Bedrock service error');
+        $this->expectExceptionMessage('Failed to generate answer: Gemini service error');
 
         $this->questionAnsweringService->answerQuestion($question);
     }

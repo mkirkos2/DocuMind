@@ -6,19 +6,19 @@ use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\MessageChunkReference;
 use App\Models\MessageDocumentReference;
-use App\Services\OllamaService;
+use App\Services\GeminiService;
 use App\Services\DocumentSearchService;
 use Illuminate\Support\Facades\Auth;
 use RuntimeException;
 
 class QuestionAnsweringService
 {
-    protected OllamaService $ollamaService;
+    protected GeminiService $geminiService;
     protected DocumentSearchService $documentSearchService;
 
-    public function __construct(OllamaService $ollamaService, DocumentSearchService $documentSearchService)
+    public function __construct(GeminiService $geminiService, DocumentSearchService $documentSearchService)
     {
-        $this->ollamaService = $ollamaService;
+        $this->geminiService = $geminiService;
         $this->documentSearchService = $documentSearchService;
     }
 
@@ -48,9 +48,9 @@ class QuestionAnsweringService
         // Build system instruction
         $systemInstruction = $this->buildSystemInstruction();
 
-        // Generate answer using Ollama
+        // Generate answer using Gemini
         try {
-            $answer = $this->ollamaService->generateText($systemInstruction, $prompt);
+            $answer = $this->geminiService->generateText($systemInstruction, $prompt);
         } catch (RuntimeException $e) {
             throw new RuntimeException('Failed to generate answer: ' . $e->getMessage());
         }

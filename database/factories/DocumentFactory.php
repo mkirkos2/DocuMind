@@ -18,7 +18,7 @@ class DocumentFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => null, // Will be set in tests
             'title' => fake()->sentence(),
             'original_filename' => fake()->word() . '.txt',
             'file_path' => 'documents/' . fake()->uuid() . '.txt',

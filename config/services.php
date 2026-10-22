@@ -36,11 +36,12 @@ return [
         'model_id' => env('BEDROCK_MODEL_ID'),
     ],
 
-    'ollama' => [
-        'base_url' => env('OLLAMA_BASE_URL', 'http://127.0.0.1:11434'),
-        'model' => env('OLLAMA_MODEL', 'qwen2.5:3b'),
-        'timeout' => (int) env('OLLAMA_TIMEOUT', 120),
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL'),
     ],
+
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
