@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import Modal from '@/Components/Modal.vue';
 
 interface Document {
     id: number;
@@ -35,6 +36,10 @@ const props = defineProps<Props>();
 const uploadForm = useForm({
     file: null as File | null,
 });
+
+const confirmingDeletion = ref(false);
+const documentToDelete = ref<Document | null>(null);
+const deletionForm = useForm({});
 
 const uploadProgress = ref(0);
 const isUploading = ref(false);
@@ -81,16 +86,48 @@ const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-const deleteDocument = (document: Document) => {
-    if (confirm('Are you sure you want to delete this document?')) {
-        useForm({}).delete(route('documents.destroy', document.id));
-    }
+const confirmDeletion = (document: Document) => {
+    documentToDelete.value = document;
+    confirmingDeletion.value = true;
+};
+
+const deleteDocument = () => {
+    if (!documentToDelete.value) return;
+    
+    deletionForm.delete(route('documents.destroy', documentToDelete.value.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            confirmingDeletion.value = false;
+            documentToDelete.value = null;
+        },
+        onError: () => {
+            confirmingDeletion.value = false;
+        },
+        onFinish: () => {
+            confirmingDeletion.value = false;
+        }
+    });
 };
 
 const handleFileInput = (event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
         uploadForm.file = target.files[0];
+    }
+};
+
+const getStatusClass = (status: string) => {
+    switch (status) {
+        case 'pending':
+            return 'bg-amber-50 text-amber-700';
+        case 'processing':
+            return 'bg-blue-50 text-blue-700';
+        case 'completed':
+            return 'bg-emerald-50 text-emerald-700';
+        case 'failed':
+            return 'bg-rose-50 text-rose-700';
+        default:
+            return 'bg-slate-50 text-slate-700';
     }
 };
 </script>
@@ -100,34 +137,34 @@ const handleFileInput = (event: Event) => {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            <h2 class="text-xl font-semibold leading-tight text-slate-900">
                 Documents
             </h2>
         </template>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
+        <div class="py-8">
+            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div class="overflow-hidden bg-white shadow-sm sm:rounded-xl">
+                    <div class="p-6">
                         <!-- Upload Form -->
-                        <div class="mb-8 p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <h3 class="text-lg font-medium mb-4">Upload Document</h3>
+                        <div class="mb-8 rounded-xl border border-slate-200 bg-slate-50 p-6">
+                            <h3 class="text-lg font-medium text-slate-900">Upload Document</h3>
 
-                            <form @submit.prevent="submit">
-                                <div class="flex flex-col md:flex-row gap-4">
+                            <form @submit.prevent="submit" class="mt-4">
+                                <div class="flex flex-col gap-4 md:flex-row">
                                     <div class="flex-1">
                                         <input
                                             type="file"
                                             @input="handleFileInput"
                                             accept=".pdf,.txt"
-                                            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                                            class="block w-full cursor-pointer rounded-lg border border-slate-300 bg-white text-sm text-slate-900 file:mr-4 file:rounded-md file:border-0 file:bg-slate-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-100 focus:outline-none"
                                             :disabled="isUploading"
                                         />
-                                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-300">
+                                        <p class="mt-2 text-sm text-slate-600">
                                             PDF and TXT files only. Max 10 MB.
                                         </p>
 
-                                        <div v-if="uploadForm.errors.file" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                                        <div v-if="uploadForm.errors.file" class="mt-2 text-sm text-red-600">
                                             {{ uploadForm.errors.file }}
                                         </div>
                                     </div>
@@ -135,9 +172,8 @@ const handleFileInput = (event: Event) => {
                                     <div class="md:w-32">
                                         <button
                                             type="submit"
-                                            class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-150 ease-in-out"
+                                            class="w-full rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:cursor-not-allowed disabled:opacity-75"
                                             :disabled="isUploading || !uploadForm.file"
-                                            :class="{ 'opacity-75 cursor-not-allowed': isUploading || !uploadForm.file }"
                                         >
                                             <span v-if="!isUploading">Upload</span>
                                             <span v-else>Uploading...</span>
@@ -146,15 +182,16 @@ const handleFileInput = (event: Event) => {
                                 </div>
 
                                 <!-- Progress bar -->
-                                <div v-if="isUploading" class="mt-4">
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                <div v-if="isUploading" class="mt-5">
+                                    <div class="flex items-center justify-between text-sm text-slate-600">
+                                        <span>Processing...</span>
+                                        <span>{{ uploadProgress }}%</span>
+                                    </div>
+                                    <div class="mt-2 h-2 w-full rounded-full bg-slate-200">
                                         <div
-                                            class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                                            class="h-2 rounded-full bg-primary-600 transition-all duration-300"
                                             :style="{ width: uploadProgress + '%' }"
                                         ></div>
-                                    </div>
-                                    <div class="text-right text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                        {{ uploadProgress }}%
                                     </div>
                                 </div>
                             </form>
@@ -162,98 +199,79 @@ const handleFileInput = (event: Event) => {
 
                         <!-- Documents List -->
                         <div v-if="props.documents.data.length > 0">
-                            <h3 class="text-lg font-medium mb-4">Your Documents</h3>
+                            <h3 class="text-lg font-medium text-slate-900">Your Documents</h3>
 
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                    <thead class="bg-gray-50 dark:bg-gray-700">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Document
-                                            </th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Size
-                                            </th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Status
-                                            </th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Uploaded
-                                            </th>
-                                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                        <tr v-for="document in props.documents.data" :key="document.id">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                    {{ document.title }}
-                                                </div>
-                                                <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                    {{ document.original_filename }}
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ formatFileSize(document.file_size) }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span
-                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                                                    :class="{
-                                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100': document.processing_status === 'pending',
-                                                        'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100': document.processing_status === 'processing',
-                                                        'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100': document.processing_status === 'completed',
-                                                        'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100': document.processing_status === 'failed'
-                                                    }"
-                                                >
-                                                    {{ document.processing_status.charAt(0).toUpperCase() + document.processing_status.slice(1) }}
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {{ formatDate(document.created_at) }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <Link
-                                                    :href="route('documents.show', document.id)"
-                                                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
-                                                >
-                                                    View
-                                                </Link>
-                                                <button
-                                                    @click="deleteDocument(document)"
-                                                    class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="mt-4 overflow-hidden rounded-lg border border-slate-200">
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-slate-200">
+                                        <thead class="bg-slate-50">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                                                    Document
+                                                </th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                                                    Size
+                                                </th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                                                    Status
+                                                </th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">
+                                                    Uploaded
+                                                </th>
+                                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-200 bg-white">
+                                            <tr v-for="document in props.documents.data" :key="document.id" class="hover:bg-slate-50">
+                                                <td class="px-6 py-4">
+                                                    <div class="text-sm font-medium text-slate-900">
+                                                        {{ document.title }}
+                                                    </div>
+                                                    <div class="text-sm text-slate-600">
+                                                        {{ document.original_filename }}
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                                                    {{ formatFileSize(document.file_size) }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <span
+                                                        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                                        :class="getStatusClass(document.processing_status)"
+                                                    >
+                                                        {{ document.processing_status.charAt(0).toUpperCase() + document.processing_status.slice(1) }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                                                    {{ formatDate(document.created_at) }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <Link
+                                                        :href="route('documents.show', document.id)"
+                                                        class="text-primary-600 hover:text-primary-900 mr-3"
+                                                    >
+                                                        View
+                                                    </Link>
+                                                    <button
+                                                        @click="confirmDeletion(document)"
+                                                        class="text-rose-600 hover:text-rose-900"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
 
                             <!-- Pagination -->
                             <div class="mt-6 flex items-center justify-between">
-                                <div class="flex flex-1 justify-between sm:hidden">
-                                    <a
-                                        v-if="props.documents.links[0] && props.documents.links[0].url"
-                                        :href="props.documents.links[0].url || '#'"
-                                        class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:focus:border-blue-700 dark:active:bg-gray-700 dark:active:text-gray-300"
-                                    >
-                                        Previous
-                                    </a>
-                                    <a
-                                        v-if="props.documents.links[props.documents.links.length - 1] && props.documents.links[props.documents.links.length - 1].url"
-                                        :href="props.documents.links[props.documents.links.length - 1].url || '#'"
-                                        class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:focus:border-blue-700 dark:active:bg-gray-700 dark:active:text-gray-300"
-                                    >
-                                        Next
-                                    </a>
-                                </div>
                                 <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                                     <div>
-                                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                                        <p class="text-sm text-slate-700">
                                             Showing
                                             <span class="font-medium">{{ props.documents?.meta?.from ?? 0 }}</span>
                                             to
@@ -264,23 +282,23 @@ const handleFileInput = (event: Event) => {
                                         </p>
                                     </div>
                                     <div>
-                                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <nav class="relative z-0 inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
                                             <template v-for="(link, index) in props.documents.links" :key="index">
                                                 <span
                                                     v-if="link.url === null"
-                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-not-allowed dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400"
+                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-500 bg-white border border-slate-300 cursor-not-allowed"
                                                     v-html="link.label"
                                                 ></span>
                                                 <a
                                                     v-else-if="link.active"
                                                     :href="link.url || '#'"
-                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-300 hover:bg-blue-100 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-100 dark:hover:bg-blue-800"
+                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100"
                                                     v-html="link.label"
                                                 ></a>
                                                 <a
                                                     v-else
                                                     :href="link.url || '#'"
-                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
+                                                    class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50"
                                                     v-html="link.label"
                                                 ></a>
                                             </template>
@@ -291,12 +309,12 @@ const handleFileInput = (event: Event) => {
                         </div>
 
                         <!-- Empty State -->
-                        <div v-else class="text-center py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <div v-else class="rounded-xl border border-dashed border-slate-300 p-12 text-center">
+                            <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No documents</h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            <h3 class="mt-4 text-lg font-medium text-slate-900">No documents</h3>
+                            <p class="mt-2 text-sm text-slate-600">
                                 Get started by uploading your first document.
                             </p>
                         </div>
@@ -304,5 +322,37 @@ const handleFileInput = (event: Event) => {
                 </div>
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <Modal :show="confirmingDeletion" @close="confirmingDeletion = false">
+            <div class="p-6">
+                <h2 class="text-lg font-semibold text-slate-900">Delete document?</h2>
+                
+                <p v-if="documentToDelete" class="mt-2 text-sm text-slate-600">
+                    Are you sure you want to delete the document "{{ documentToDelete.title }}"? This action cannot be undone.
+                </p>
+                
+                <div class="mt-6 flex justify-end gap-3">
+                    <button
+                        type="button"
+                        class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50"
+                        @click="confirmingDeletion = false"
+                    >
+                        Cancel
+                    </button>
+                    
+                    <button
+                        type="button"
+                        class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
+                        :class="{ 'opacity-75 cursor-not-allowed': deletionForm.processing }"
+                        :disabled="deletionForm.processing"
+                        @click="deleteDocument"
+                    >
+                        <span v-if="deletionForm.processing">Deleting...</span>
+                        <span v-else>Delete document</span>
+                    </button>
+                </div>
+            </div>
+        </Modal>
     </AuthenticatedLayout>
 </template>

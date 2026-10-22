@@ -105,7 +105,7 @@ async function submitQuestion() {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+            <h2 class="text-xl font-semibold leading-tight text-slate-900">
                 AI Chat
             </h2>
         </template>
@@ -113,14 +113,21 @@ async function submitQuestion() {
         <div class="mx-auto flex max-w-5xl flex-col px-4 py-6 sm:px-6 lg:px-8">
             <div
                 ref="chatContainer"
-                class="mb-4 flex h-[55vh] min-h-80 flex-col gap-4 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
+                class="mb-5 flex h-[60vh] min-h-96 flex-col gap-5 overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
                 aria-live="polite"
             >
                 <div v-if="messages.length === 0" class="m-auto max-w-md text-center">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary-50">
+                        <svg viewBox="0 0 24 24" class="h-8 w-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M8.5 9a3.5 3.5 0 0 1 7 0c0 2.5-3.5 2.5-3.5 5" stroke-linecap="round" />
+                            <circle cx="12" cy="18" r=".8" fill="currentColor" />
+                            <circle cx="12" cy="12" r="9" />
+                        </svg>
+                    </div>
+                    <h3 class="mt-4 text-lg font-semibold text-slate-900">
                         Ρώτησε τα έγγραφά σου
                     </h3>
-                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    <p class="mt-2 text-sm text-slate-600">
                         Κάνε μια ερώτηση σχετικά με τα έγγραφα που έχεις ανεβάσει και επεξεργαστεί.
                     </p>
                 </div>
@@ -128,22 +135,22 @@ async function submitQuestion() {
                 <div
                     v-for="(message, index) in messages"
                     :key="index"
-                    class="max-w-[90%] whitespace-pre-wrap rounded-lg p-3 sm:max-w-[80%]"
+                    class="max-w-[90%] whitespace-pre-wrap rounded-xl px-4 py-3 sm:max-w-[85%]"
                     :class="message.role === 'user'
-                        ? 'self-end bg-indigo-600 text-white'
-                        : 'self-start bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100'"
+                        ? 'self-end bg-primary-600 text-white'
+                        : 'self-start bg-slate-100 text-slate-900'"
                 >
-                    <p class="mb-1 text-xs font-semibold opacity-75">
+                    <p class="mb-1 text-xs font-semibold opacity-80">
                         {{ message.role === 'user' ? 'Εσύ' : 'DocuMind AI' }}
                     </p>
 
-                    <p>{{ message.content }}</p>
+                    <p class="leading-relaxed">{{ message.content }}</p>
 
                     <div
                         v-if="message.role === 'assistant' && message.sources?.length"
-                        class="mt-3 border-t border-gray-300 pt-2 dark:border-gray-600"
+                        class="mt-3 border-t border-slate-200 pt-3"
                     >
-                        <p class="mb-2 text-xs font-semibold">Πηγές</p>
+                        <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">Πηγές</p>
 
                         <ul class="space-y-2">
                             <li
@@ -151,9 +158,9 @@ async function submitQuestion() {
                                 :key="`${source.document_id}-${source.chunk_id}-${sourceIndex}`"
                                 class="text-xs"
                             >
-                                <p class="font-medium">{{ source.document_title }}</p>
-                                <p class="opacity-75">
-                                    Chunk #{{ source.chunk_id }}
+                                <p class="font-medium text-slate-900">{{ source.document_title }}</p>
+                                <p class="text-slate-600">
+                                    Τμήμα #{{ source.chunk_order + 1 }}
                                     <span v-if="source.page_number">
                                         · Σελίδα {{ source.page_number }}
                                     </span>
@@ -163,52 +170,61 @@ async function submitQuestion() {
                     </div>
                 </div>
 
-                <p v-if="loading" class="self-start text-sm text-gray-500 dark:text-gray-400">
-                    Η AI επεξεργάζεται την ερώτησή σου…
-                </p>
+                <div v-if="loading" class="self-start">
+                    <div class="flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-3">
+                        <div class="flex gap-1">
+                            <div class="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]"></div>
+                            <div class="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]"></div>
+                            <div class="h-2 w-2 animate-bounce rounded-full bg-slate-400"></div>
+                        </div>
+                        <span class="text-sm text-slate-600">Η AI επεξεργάζεται την ερώτησή σου…</span>
+                    </div>
+                </div>
             </div>
 
-            <form class="space-y-2" @submit.prevent="submitQuestion">
-                <label for="question" class="sr-only">Η ερώτησή σου</label>
-
-                <textarea
-                    id="question"
-                    v-model="question"
-                    rows="3"
-                    maxlength="2000"
-                    placeholder="Γράψε την ερώτησή σου..."
-                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                    :disabled="loading"
-                    @keydown.enter.exact.prevent="submitQuestion"
-                />
-
-                <div class="flex items-center justify-between gap-3">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                        {{ question.length }}/2000 χαρακτήρες
-                    </p>
-
-                    <button
-                        type="submit"
-                        :disabled="!canSubmit"
-                        class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        {{ loading ? 'Αναμονή...' : 'Αποστολή' }}
-                    </button>
+            <form class="space-y-3" @submit.prevent="submitQuestion">
+                <div class="relative rounded-xl border border-slate-300 bg-white shadow-sm transition focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500">
+                    <label for="question" class="sr-only">Η ερώτησή σου</label>
+                    <textarea
+                        id="question"
+                        v-model="question"
+                        rows="3"
+                        maxlength="2000"
+                        placeholder="Γράψε την ερώτησή σου..."
+                        class="block w-full resize-none border-0 rounded-xl bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-500 focus:ring-0"
+                        :disabled="loading"
+                        @keydown.enter.exact.prevent="submitQuestion"
+                    />
+                    
+                    <div class="absolute inset-x-0 bottom-0 flex items-center justify-between px-4 py-3">
+                        <p class="text-xs text-slate-500">
+                            {{ question.length }}/2000 χαρακτήρες
+                        </p>
+                        
+                        <button
+                            type="submit"
+                            :disabled="!canSubmit"
+                            class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <span v-if="!loading">Αποστολή</span>
+                            <span v-else>Αναμονή...</span>
+                        </button>
+                    </div>
                 </div>
 
                 <p
                     v-if="errorMessage"
                     role="alert"
-                    class="text-sm text-red-600 dark:text-red-400"
+                    class="text-sm text-red-600"
                 >
                     {{ errorMessage }}
                 </p>
+                
+                <p class="text-xs text-slate-500">
+                    Τα μηνύματα διατηρούνται προσωρινά μόνο σε αυτή τη σελίδα.
+                    Οι προηγούμενες ερωτήσεις δεν χρησιμοποιούνται ως πλαίσιο από την AI.
+                </p>
             </form>
-
-            <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                Τα μηνύματα διατηρούνται προσωρινά μόνο σε αυτή τη σελίδα.
-                Οι προηγούμενες ερωτήσεις δεν χρησιμοποιούνται ως πλαίσιο από την AI.
-            </p>
         </div>
     </AuthenticatedLayout>
 </template>

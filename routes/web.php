@@ -6,6 +6,8 @@ use App\Http\Controllers\QuestionAnsweringController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Models\Document;
+use App\Models\Message;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -17,7 +19,23 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    $user = auth()->user();
+
+    return Inertia::render('Dashboard', [
+        'stats' => [
+            'totalDocuments' => Document::where('user_id', $user->id)->count(),
+
+            'processedDocuments' => Document::where('user_id', $user->id)
+                ->where('processing_status', 'completed')
+                ->count(),
+
+            'questionsAsked' => Message::where('role', 'user')
+                ->whereHas('conversation', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->count(),
+        ],
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
