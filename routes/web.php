@@ -50,6 +50,9 @@ Route::middleware('auth')->group(function () {
         ->name('question.answer');
 
     Route::resource('documents', DocumentController::class);
+    
+    Route::get('/documents/{document}/view', [DocumentController::class, 'viewFile'])
+        ->name('documents.view-file');
 
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');

@@ -203,6 +203,28 @@ const deleteDocument = () => {
                                         </div>
                                     </div>
 
+                                    <!-- View PDF Card -->
+                                    <div v-if="props.document.mime_type === 'application/pdf'" class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                                        <h3 class="text-lg font-semibold text-slate-900">View Document</h3>
+                                        
+                                        <div class="mt-5">
+                                            <p class="text-sm text-slate-600">
+                                                Open the original PDF file in your browser.
+                                            </p>
+                                            
+                                            <a
+                                                :href="route('documents.view-file', props.document.id)"
+                                                target="_blank"
+                                                class="mt-4 inline-flex items-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                                            >
+                                                Open PDF
+                                                <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+
                                     <!-- Delete Document Card -->
                                     <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                                         <h3 class="text-lg font-semibold text-slate-900">Danger Zone</h3>

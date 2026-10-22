@@ -119,6 +119,36 @@ class DocumentController extends Controller
     }
 
     /**
+     * Display the specified document file.
+     */
+    public function viewFile(Document $document)
+    {
+        // Ensure the document belongs to the authenticated user
+        if ($document->user_id !== auth()->id()) {
+            abort(404);
+        }
+
+        // Check if the file exists
+        if (!Storage::disk('local')->exists($document->file_path)) {
+            abort(404);
+        }
+
+        // Check if the document is a PDF
+        if ($document->mime_type !== 'application/pdf') {
+            abort(404);
+        }
+
+        // Return the file with proper headers for inline viewing
+        return response()->file(
+            Storage::disk('local')->path($document->file_path),
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="' . $document->original_filename . '"'
+            ]
+        );
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Document $document)
